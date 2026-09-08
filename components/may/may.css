@@ -1,0 +1,136 @@
+.may-experience {
+  --may-cyan: #36e6ff;
+  --may-cyan-soft: rgba(54, 230, 255, .34);
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 620px;
+  overflow: hidden;
+  isolation: isolate;
+  color: #dffaff;
+  background: #01060b;
+  font-family: var(--font-mono);
+}
+
+.may-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse 46% 58% at 50% 47%, rgba(0, 110, 145, .17), transparent 69%),
+    radial-gradient(circle 20% at 50% 48%, rgba(255, 137, 28, .055), transparent 76%),
+    linear-gradient(180deg, #020910 0%, #01060b 48%, #02070b 100%);
+}
+
+.may-backdrop::before,
+.may-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.may-backdrop::before {
+  opacity: .15;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+.may-backdrop::after {
+  box-shadow: inset 0 0 180px 60px #000;
+  background: linear-gradient(90deg, rgba(1, 6, 11, .92), transparent 25%, transparent 75%, rgba(1, 6, 11, .92));
+}
+
+.may-avatar-stage { position: absolute; inset: 0; z-index: 1; }
+.may-avatar-stage canvas { display: block; touch-action: none; }
+
+.may-header {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 28px 34px;
+  pointer-events: none;
+}
+
+.may-identity { display: grid; grid-template-columns: auto auto auto; align-items: baseline; gap: 0 11px; }
+.may-identity h1 { margin: 0; font: 500 22px/1 var(--font-mono); letter-spacing: .42em; text-shadow: 0 0 20px rgba(54,230,255,.38); }
+.may-index { grid-row: 1 / span 2; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8px; letter-spacing: .2em; color: rgba(150,226,238,.42); }
+.may-state-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--may-cyan); box-shadow: 0 0 10px var(--may-cyan); animation: may-status-pulse 2.4s ease-in-out infinite; }
+.may-identity p { grid-column: 2 / span 2; margin: 8px 0 0; font-size: 9px; letter-spacing: .28em; color: rgba(174,234,243,.58); }
+.may-back-link { pointer-events: auto; color: rgba(186,235,243,.48); text-decoration: none; font-size: 9px; letter-spacing: .18em; padding: 8px 0; transition: color .2s ease; }
+.may-back-link:hover, .may-back-link:focus-visible { color: #dffaff; outline: none; }
+
+.may-signal {
+  position: absolute;
+  z-index: 10;
+  left: 34px;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  transform: translateY(-50%);
+  color: rgba(141,221,235,.34);
+  font-size: 7px;
+  letter-spacing: .18em;
+}
+.may-signal i { display: block; height: 1px; width: 34px; background: rgba(54,230,255,.22); }
+.may-signal i:nth-of-type(2) { width: 19px; }
+.may-signal i:nth-of-type(3) { width: 27px; }
+.may-signal em { color: rgba(54,230,255,.55); font-style: normal; }
+
+.may-quality {
+  position: absolute;
+  z-index: 20;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+.may-quality > span { margin-bottom: 6px; color: rgba(169,225,235,.35); font-size: 7px; letter-spacing: .22em; }
+.may-quality button { padding: 3px 0; border: 0; background: transparent; color: rgba(169,225,235,.28); cursor: pointer; font: 8px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; }
+.may-quality button[aria-pressed="true"] { color: var(--may-cyan); text-shadow: 0 0 9px rgba(54,230,255,.65); }
+.may-quality button:focus-visible { outline: 1px solid rgba(54,230,255,.5); outline-offset: 3px; }
+.may-quality em { margin-top: 7px; color: rgba(169,225,235,.38); font-size: 7px; font-style: normal; }
+
+.may-console { bottom: 18px !important; width: min(630px, 92vw) !important; }
+.may-console > form { background: rgba(1, 8, 13, .66) !important; border-radius: 3px !important; border-color: rgba(54,230,255,.24) !important; box-shadow: 0 0 50px rgba(0,168,220,.06) !important; }
+.may-console > [role="status"] { background: rgba(1,8,13,.76) !important; border-radius: 3px !important; }
+
+.may-avatar-fallback { position: absolute; inset: 12% 25% 13%; opacity: .72; filter: drop-shadow(0 0 18px rgba(21,210,242,.28)); }
+.may-avatar-fallback::before { content: ""; position: absolute; left: 50%; top: 5%; width: 42%; height: 58%; transform: translateX(-50%); border: 1px solid rgba(54,230,255,.5); border-radius: 48% 48% 44% 44%; background: repeating-linear-gradient(0deg, transparent 0 12px, rgba(54,230,255,.12) 12px 13px); }
+.may-avatar-fallback::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 0; height: 40%; border-top: 1px solid rgba(54,230,255,.34); border-radius: 50% 50% 0 0; }
+.may-avatar-fallback i { position: absolute; z-index: 2; left: 50%; top: 42%; width: 72px; height: 52px; transform: translate(-50%,-50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,246,199,.9), rgba(255,159,24,.5) 22%, rgba(255,104,0,.12) 52%, transparent 74%); }
+
+@keyframes may-status-pulse { 0%,100% { opacity: .4; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+
+@media (max-width: 760px) {
+  .may-experience { min-height: 540px; }
+  .may-header { padding: 20px; }
+  .may-identity h1 { font-size: 18px; }
+  .may-back-link { font-size: 0; }
+  .may-back-link span { font-size: 15px; }
+  .may-signal { display: none; }
+  .may-quality { right: 15px; top: 43%; gap: 4px; }
+  .may-quality button { font-size: 7px; }
+  .may-console { bottom: 12px !important; }
+}
+
+@media (max-height: 650px) and (orientation: landscape) {
+  .may-header { padding: 14px 20px; }
+  .may-quality { top: 42%; }
+  .may-console { bottom: 8px !important; width: min(580px, 78vw) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .may-state-dot { animation: none; }
+  .may-backdrop::before { display: none; }
+}

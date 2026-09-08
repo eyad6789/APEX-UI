@@ -75,7 +75,7 @@ const PLAY_TIMEOUT_MS = 4000;   // Safari can leave play() pending forever - nev
 const HANDS_FREE_KEY = "apex.handsFree";
 const NAVIGATOR_LANG = () => (typeof navigator !== "undefined" && navigator.language) || "en-US";
 
-export default function AgentConsole({ onState, onSchedule, onAudioElement, onMicrophoneStream, className }: {
+export default function AgentConsole({ onState, onSchedule, onAudioElement, onMicrophoneStream, className, agentName = "Mey" }: {
   onState: (s: ConsoleState) => void;
   /** Fires whenever a reply changed the calendar, so the panel can redraw. */
   onSchedule?: (meetings: Meeting[]) => void;
@@ -84,6 +84,7 @@ export default function AgentConsole({ onState, onSchedule, onAudioElement, onMi
   /** Reports a live microphone stream when one is available for visual analysis. */
   onMicrophoneStream?: (stream: MediaStream | null) => void;
   className?: string;
+  agentName?: string;
 }) {
   const [text, setText] = useState("");
   const [state, setState] = useState<ConsoleState>("idle");
@@ -317,7 +318,7 @@ export default function AgentConsole({ onState, onSchedule, onAudioElement, onMi
       releaseAnalysisStream();
       go("idle");
       const said = finalText.trim();
-      if (said) { const stripped = stripWake(said); void sendRef.current(stripped === "" ? "Hello Mey." : stripped ?? said); return; }
+      if (said) { const stripped = stripWake(said); void sendRef.current(stripped === "" ? `Hello ${agentName}.` : stripped ?? said); return; }
       if (!failed) setError((prev) => prev || "I did not catch that, sir. Press the mic and speak again, or type below.");
     };
     setError("");
@@ -331,7 +332,7 @@ export default function AgentConsole({ onState, onSchedule, onAudioElement, onMi
       go("idle");
       setError(`Could not start the microphone: ${(e as Error).message}`);
     }
-  }, [go, releaseAnalysisStream, stopSpeaking]);
+  }, [agentName, go, releaseAnalysisStream, stopSpeaking]);
 
   /* ── hands-free: keep a recognizer running whenever Mey is idle, act on "Hi Mey …" ── */
   handsFreeRef.current = handsFree;
@@ -416,7 +417,7 @@ export default function AgentConsole({ onState, onSchedule, onAudioElement, onMi
   const busy = state === "thinking";
   const accent = state === "listening" ? "#ff6b6b" : state === "speaking" ? "#37d6ef" : state === "thinking" ? "#f5a623" : handsFree ? "rgba(55,214,239,0.45)" : "rgba(240,237,232,0.55)";
   const hint = resumePending ? "Tap anywhere to resume hands-free"
-    : handsFree && state === "idle" ? (wakeHeard ? `Hearing: “${wakeHeard}”` : "Hands-free on - say “Hi Mey…”") : "";
+    : handsFree && state === "idle" ? (wakeHeard ? `Hearing: “${wakeHeard}”` : `Hands-free on - say “Hi ${agentName}…”`) : "";
 
   return (
     <div className={className} style={{ position: "absolute", left: "50%", bottom: 22, transform: "translateX(-50%)", zIndex: 50, width: "min(680px, 94vw)", display: "flex", flexDirection: "column", gap: 8, alignItems: "stretch" }}>
@@ -439,14 +440,14 @@ export default function AgentConsole({ onState, onSchedule, onAudioElement, onMi
           ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={state === "listening" ? "Listening…" : busy ? "Thinking…" : hint || "Ask Mey anything"}
-          aria-label="Message to Mey"
+          placeholder={state === "listening" ? "Listening…" : busy ? "Thinking…" : hint || `Ask ${agentName} anything`}
+          aria-label={`Message to ${agentName}`}
           disabled={busy}
           style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "#f0ede8", fontSize: 14, minWidth: 0 }}
         />
         {micAvailable && (
           <button type="button" onClick={() => { handsFreeTouched.current = true; setResumePending(false); setHandsFree((v) => !v); }}
-            aria-label={handsFree ? "Turn hands-free off" : "Turn hands-free on (say Hi Mey)"} aria-pressed={handsFree} title={handsFree ? "Hands-free on" : "Hands-free: say “Hi Mey”"}
+            aria-label={handsFree ? "Turn hands-free off" : `Turn hands-free on (say Hi ${agentName})`} aria-pressed={handsFree} title={handsFree ? "Hands-free on" : `Hands-free: say “Hi ${agentName}”`}
             style={{ ...btn, width: "auto", padding: "0 10px", borderRadius: 999, fontSize: 10, letterSpacing: "0.12em", fontFamily: "var(--font-mono)",
               background: handsFree ? "rgba(55,214,239,0.16)" : "transparent", color: handsFree ? "#37d6ef" : "rgba(240,237,232,0.45)", border: `1px solid ${handsFree ? "rgba(55,214,239,0.4)" : "rgba(240,237,232,0.15)"}` }}>
             {handsFree ? "● HANDS-FREE" : "○ HANDS-FREE"}
@@ -454,7 +455,7 @@ export default function AgentConsole({ onState, onSchedule, onAudioElement, onMi
         )}
         {micAvailable && (
           <button type="button" onClick={toggleMic} disabled={busy}
-            aria-label={state === "listening" ? "Stop listening" : "Speak to Mey"} aria-pressed={state === "listening"}
+            aria-label={state === "listening" ? "Stop listening" : `Speak to ${agentName}`} aria-pressed={state === "listening"}
             style={{ ...btn, background: state === "listening" ? "rgba(255,107,107,0.2)" : "transparent", color: state === "listening" ? "#ff6b6b" : "rgba(240,237,232,0.7)" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
