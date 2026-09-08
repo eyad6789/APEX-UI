@@ -21,7 +21,12 @@ function buildContours(stride: number) {
     }
     if (steps % stride !== 0) segment(previous, point(1));
   };
-  curve((t) => { const a = -Math.PI * .92 + t * Math.PI * 1.84; return new THREE.Vector3(Math.sin(a) * 1.39, .43 + Math.cos(a) * 1.89, .23 + Math.cos(a) * .13); }, 96);
+  for (let shell = 0; shell < 3; shell += 1) {
+    curve((t) => {
+      const a = -Math.PI * .94 + t * Math.PI * 1.88;
+      return new THREE.Vector3(Math.sin(a) * (1.39 + shell * .025), .43 + Math.cos(a) * (1.89 + shell * .018), .25 - shell * .025 + Math.cos(a) * .13);
+    }, 112);
+  }
   for (const side of [-1, 1]) {
     curve((t) => new THREE.Vector3(side * (.52 + Math.cos(t * Math.PI * 2) * .34), .70 + Math.sin(t * Math.PI * 2) * .14, .94), 40);
     curve((t) => new THREE.Vector3(side * (.31 + t * .57), .97 + Math.sin(t * Math.PI) * .16, .87), 30);
@@ -30,16 +35,26 @@ function buildContours(stride: number) {
   curve((t) => new THREE.Vector3(-.49 + t * .98, -.55 + Math.pow(Math.abs(t - .5) * 2, 1.6) * .09, .94), 38);
   curve((t) => new THREE.Vector3(-.45 + t * .90, -.62 - Math.pow(Math.abs(t - .5) * 2, 1.4) * .04, .91), 38);
   curve((t) => { const a = -.86 + t * 1.72; return new THREE.Vector3(Math.sin(a) * 1.22, -.15 - Math.cos(a) * 1.26, .50 + Math.cos(a) * .2); }, 56);
-  for (let i = 0; i < 17; i += stride) {
-    const y = -1.18 + i * .20;
+  const scanStride = Math.max(1, Math.floor(stride / 2));
+  for (let i = 0; i < 36; i += scanStride) {
+    const y = -1.26 + i * .10;
     const ny = (y - .43) / 1.89;
     const half = 1.39 * Math.sqrt(Math.max(0, 1 - ny * ny));
-    if (half > .12) segment(new THREE.Vector3(-half, y, .17), new THREE.Vector3(half, y, .17));
+    if (half > .12) {
+      const bow = .12 + Math.sqrt(Math.max(0, 1 - ny * ny)) * .23;
+      curve((t) => {
+        const x = -half + t * half * 2;
+        return new THREE.Vector3(x, y + Math.cos((t - .5) * Math.PI) * .018, bow + Math.cos((t - .5) * Math.PI) * .16);
+      }, 26);
+    }
   }
   curve((t) => new THREE.Vector3(-.48, -1.25 - t * 1.0, .06), 24);
   curve((t) => new THREE.Vector3(.48, -1.25 - t * 1.0, .06), 24);
-  curve((t) => new THREE.Vector3(-2.45 + t * 1.98, -2.48 + Math.sin(t * Math.PI) * .34, -.04), 46);
-  curve((t) => new THREE.Vector3(.47 + t * 1.98, -2.14 - Math.sin(t * Math.PI) * .34, -.04), 46);
+  for (let band = 0; band < 8; band += Math.max(1, stride)) {
+    const inset = band * .11;
+    curve((t) => new THREE.Vector3(-2.48 + inset + t * (2.01 - inset), -2.49 + band * .04 + Math.sin(t * Math.PI) * (.36 - band * .015), -.06 - band * .015), 54);
+    curve((t) => new THREE.Vector3(.47 + t * (2.01 - inset), -2.13 - band * .04 - Math.sin(t * Math.PI) * (.36 - band * .015), -.06 - band * .015), 54);
+  }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
   return geometry;
@@ -53,7 +68,7 @@ export default function MayContourField({ state, quality, reducedMotion, audioFr
   useFrame(({ clock }, delta) => {
     const target = STATE_VISUALS[state];
     if (materialRef.current) {
-      const desired = .11 + target.focus * .23 + audioFrameRef.current.high * .22;
+      const desired = .34 + target.focus * .24 + audioFrameRef.current.high * .18;
       materialRef.current.opacity = THREE.MathUtils.damp(materialRef.current.opacity, desired, 4, delta);
       materialRef.current.color.setRGB(.08 + audioFrameRef.current.high * .08, .65 + target.focus * .15, .88 + target.energy * .1);
     }

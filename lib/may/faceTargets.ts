@@ -48,7 +48,9 @@ function ellipseArc(cx: number, cy: number, rx: number, ry: number, z: number, r
 function sampleRegion(region: FacialRegion, random: () => number): Point {
   if (region === "head") {
     const a = random() * Math.PI * 2;
-    const radial = Math.sqrt(random());
+    // Keep most structural particles near the cranial shell. The inner face is
+    // described by feature particles and contour scans rather than a filled cloud.
+    const radial = 0.72 + Math.pow(random(), 0.72) * 0.28;
     const x = Math.cos(a) * 1.38 * radial;
     const y = 0.42 + Math.sin(a) * 1.88 * radial;
     const normalized = Math.min(1, (x * x) / (1.38 * 1.38) + ((y - 0.42) * (y - 0.42)) / (1.88 * 1.88));

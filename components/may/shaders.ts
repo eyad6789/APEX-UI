@@ -82,12 +82,13 @@ export const particleVertexShader = /* glsl */ `
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = min(8.0, (1.6 + aSize * 2.15 + uAudio.w * 2.2) * uPixelRatio * (7.0 / -mvPosition.z));
+    gl_PointSize = min(6.0, (1.0 + aSize * 1.45 + uAudio.w * 1.5) * uPixelRatio * (7.0 / -mvPosition.z));
 
     vHeat = mouth * (.18 + uVoice * .5);
     vSpark = step(.91, dissolveSeed) * uAudio.z;
     vDepth = clamp((aDepth + 1.2) / 2.4, 0.0, 1.0);
-    vAlpha = (0.38 + vDepth * .58) * (1.0 - dissolved * .64) * (0.72 + formation * .28);
+    float featureQuiet = mix(1.0, .34, clamp(eye, 0.0, 1.0));
+    vAlpha = (0.20 + vDepth * .48) * featureQuiet * (1.0 - dissolved * .64) * (0.70 + formation * .30);
   }
 `;
 
