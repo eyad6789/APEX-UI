@@ -130,6 +130,10 @@ export function gitBriefing(): string {
     `next turn - and if they say anything else, send nothing at all.`,
     `Write "message" yourself from what they have been doing: a short imperative line,`,
     `no quotes, no trailing full stop. Never sign it, and never add a co-author.`,
+    `NEVER ask the user what the commit message should be - that is your job, and asking`,
+    `wastes a turn. If there is nothing uncommitted, the message is not used anyway.`,
+    `Do not say you are "preparing to" push or about to push. Emit the block and let what`,
+    `comes back be your answer; you will be given the real state to read out.`,
     `Use "status" freely - it only looks.`,
   ].join("\n");
 }
