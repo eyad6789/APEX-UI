@@ -3,6 +3,7 @@ import { scheduleHandler } from "@/lib/schedule/commands";
 import { workspaceHandler } from "@/lib/workspace/commands";
 import { terminalHandler } from "@/lib/terminal/commands";
 import { webHandler } from "@/lib/web/commands";
+import { appHandler } from "@/lib/apps/commands";
 
 /**
  * Wiring. Importing this module registers every namespace Mey can act in;
@@ -16,6 +17,7 @@ export function wireHandlers(): void {
   registerHandler("workspace", workspaceHandler);
   registerHandler("terminal", terminalHandler);
   registerHandler("web", webHandler);
+  registerHandler("app", appHandler);
   wired = true;
 }
 
