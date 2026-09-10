@@ -3,6 +3,7 @@ import { workspaceBriefing } from "@/lib/workspace/commands";
 import { terminalBriefing } from "@/lib/terminal/commands";
 import { webBriefing } from "@/lib/web/commands";
 import { appBriefing } from "@/lib/apps/commands";
+import { gitBriefing } from "@/lib/git/commands";
 import { profileBriefing } from "@/lib/profile";
 
 export type Msg = { role: "user" | "assistant"; content: string };
@@ -31,6 +32,7 @@ export function systemPrompt(now = new Date()): string {
     terminalBriefing(),
     webBriefing(),
     appBriefing(),
+    gitBriefing(),
     RULES,
   ].filter(Boolean).join("\n\n");
 }

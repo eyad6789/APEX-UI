@@ -60,7 +60,7 @@ export async function POST(request: Request) {
 
   // Ran something: the outcome is what he says, so he cannot claim a booking that
   // did not save or a window that did not open.
-  const outcome = await runBlocks(blocks);
+  const outcome = await runBlocks(blocks, { lastUserMessage: messages[messages.length - 1].content });
 
   // A handler that returned facts rather than an outcome gets one more pass through
   // the model, so a readme comes back as a sentence instead of being read aloud.

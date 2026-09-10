@@ -38,7 +38,18 @@ export type HandlerResult = {
   data?: Record<string, unknown>;
 };
 
-export type Handler = (payload: Record<string, unknown>) => HandlerResult | Promise<HandlerResult>;
+/**
+ * What the handler knows about the turn beyond its own payload. `lastUserMessage`
+ * is the user's own words, which is the only thing in this system the model cannot
+ * author - a handler guarding something irreversible checks that, not the payload.
+ */
+export type HandlerContext = { lastUserMessage: string };
+
+export type Handler = (
+  payload: Record<string, unknown>,
+  /** Always supplied by runBlocks; optional so a handler that ignores it stays a one-liner. */
+  ctx?: HandlerContext,
+) => HandlerResult | Promise<HandlerResult>;
 
 const handlers = new Map<string, Handler>();
 
@@ -88,7 +99,10 @@ export type RunOutcome = {
  * Run every block. A handler that throws costs its own sentence, never the reply -
  * a failed terminal launch should not silence Mey.
  */
-export async function runBlocks(blocks: Block[]): Promise<RunOutcome> {
+export async function runBlocks(
+  blocks: Block[],
+  ctx: HandlerContext = { lastUserMessage: "" },
+): Promise<RunOutcome> {
   const outcome: RunOutcome = { spoken: [], data: {}, changed: [], context: [] };
 
   for (const { ns, payload } of blocks) {
@@ -98,7 +112,7 @@ export async function runBlocks(blocks: Block[]): Promise<RunOutcome> {
       continue;
     }
     try {
-      const result = await handler(payload);
+      const result = await handler(payload, ctx);
       if (result.spoken) outcome.spoken.push(result.spoken);
       if (result.context) outcome.context.push(result.context);
       if (result.data) outcome.data[ns] = { ...(outcome.data[ns] ?? {}), ...result.data };
