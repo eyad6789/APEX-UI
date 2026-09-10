@@ -66,3 +66,58 @@ test("a non-open action does nothing", async () => {
   const { terminalHandler } = await import("../lib/terminal/commands.ts");
   assert.equal((await terminalHandler({ action: "close" })).spoken, "");
 });
+
+// Sending a prompt into a Claude Code session. The prompt is an AppleScript string
+// literal that AppleScript then quotes for the shell, exactly as the path is - so
+// there is no place in the template for model text to become a command.
+
+test("a prompt is collapsed onto one line and capped", async () => {
+  const { oneLine, MAX_PROMPT } = await import("../lib/terminal/open.ts");
+  assert.equal(oneLine("  add a\n dark   mode\ttoggle \n"), "add a dark mode toggle");
+  assert.equal(oneLine("x".repeat(MAX_PROMPT * 2)).length, MAX_PROMPT);
+  assert.equal(oneLine(""), "");
+});
+
+test("a prompt is passed to claude as one quoted argument", () => {
+  const script = buildScript("/tmp/x", 1, "add a dark mode toggle");
+  assert.match(script, /& " && claude " & quoted form of "add a dark mode toggle"/);
+});
+
+test("no prompt leaves the command exactly as it was", () => {
+  assert.match(buildScript("/tmp/x", 1), /& " && claude"$/m);
+});
+
+test("a prompt cannot break out of the quoting", () => {
+  const nasty = `look at this"; rm -rf ~; echo "done`;
+  const script = buildScript("/tmp/x", 1, nasty);
+  assert.ok(!script.includes(`"; rm -rf ~; echo "`), "raw quotes must not survive");
+  assert.match(script, /\\"/);
+  assert.equal(script.split("\n").length, buildScript("/tmp/x", 1, "safe").split("\n").length,
+    "a newline in a prompt must not add a line to the script");
+});
+
+test("a newline in a prompt cannot inject an AppleScript statement", () => {
+  const script = buildScript("/tmp/x", 1, 'hi"\nend tell\ndo shell script "whoami');
+  assert.ok(!/^\s*do shell script/m.test(script), "no injected statement");
+});
+
+test("sending with no prompt asks rather than opening an empty session", async () => {
+  const { terminalHandler } = await import("../lib/terminal/commands.ts");
+  const result = await terminalHandler({ action: "send", project: "APEX-UI" });
+  assert.match(result.spoken, /what|which/i);
+  assert.equal(result.data, undefined, "nothing should have been opened");
+});
+
+test("sending to an unknown project is refused", async () => {
+  const { terminalHandler } = await import("../lib/terminal/commands.ts");
+  const result = await terminalHandler({ action: "send", project: "zebra-not-real", prompt: "hello" });
+  assert.match(result.spoken, /could not find/i);
+  assert.equal(result.data, undefined);
+});
+
+test("sending to an ambiguous project asks instead of guessing", async () => {
+  const { terminalHandler } = await import("../lib/terminal/commands.ts");
+  const result = await terminalHandler({ action: "send", project: "geo", prompt: "hello" });
+  assert.match(result.spoken, /which one/i);
+  assert.equal(result.data, undefined);
+});
