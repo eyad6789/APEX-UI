@@ -10,11 +10,15 @@
  * orb's tap cycle drives the whole web (standby → processing → speaking).
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ApexHeroOrb, { type OrbState } from "./ApexHeroOrb";
 import ReasoningWebJs from "./ReasoningWeb";
 import ShaderBackgroundJs from "./ShaderBackground";
 import OrbStatusBar from "./OrbStatusBar";
+import AgentConsole, { type ConsoleState } from "./AgentConsole";
+import SchedulePanel from "./SchedulePanel";
+import type { Meeting } from "@/lib/schedule/store";
+import "./apex-schedule.css";
 
 export type NodeSel = { name: string; key: string; color: string };
 
@@ -231,13 +235,23 @@ export function AgentOverview({ sel, onClose }: { sel: NodeSel; onClose: () => v
 /* ── The world ── */
 export default function ApexWorld() {
   const [selected, setSelected] = useState<NodeSel | null>(null);
+  const [meetings, setMeetings] = useState<Meeting[] | null>(null);
   const [reduced, setReduced] = useState(false);
 
   // A tap cycles idle → thinking → speaking → idle. That state drives the
   // backdrop, the light-cast and the reasoning web's activity level.
   const [showState, setShowState] = useState<OrbState>("idle");
   const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const orbState: OrbState = showState;
+
+  // The live agent (AgentConsole) owns the orb while it is listening, thinking
+  // or speaking; the tap cycle only applies when the agent is idle.
+  const [agentState, setAgentState] = useState<ConsoleState>("idle");
+  const onAgentState = useCallback((s: ConsoleState) => {
+    setAgentState(s);
+    if (s !== "idle") { if (showTimer.current) clearTimeout(showTimer.current); setShowState("idle"); }
+  }, []);
+  const orbState: OrbState = agentState === "thinking" ? "thinking" : agentState === "speaking" ? "speaking" : showState;
+  const barState = agentState === "listening" ? "listening" : orbState;
 
   const boost = () => {
     const next: OrbState = showState === "idle" ? "thinking" : showState === "thinking" ? "speaking" : "idle";
@@ -277,7 +291,7 @@ export default function ApexWorld() {
       {/* background waves - the app's WebGL shader at the app's opacity */}
       {!reduced && (
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-          <ShaderBackground opacity={0.12} voiceActive={orbState === "speaking"} gold={false} />
+          <ShaderBackground opacity={0.38} voiceActive={orbState === "speaking"} gold={false} />
         </div>
       )}
 
@@ -341,7 +355,15 @@ export default function ApexWorld() {
       />
 
       {/* equalizer + STANDBY cluster */}
-      <OrbStatusBar state={orbState} />
+      {/* lifted 74px so the console bar below does not cover the STANDBY cluster */}
+      <div style={{ position: "absolute", inset: 0, bottom: 74, pointerEvents: "none" }}>
+        <OrbStatusBar state={barState} />
+      </div>
+
+      {/* talk to Mey: text or mic → Claude → ElevenLabs voice */}
+      <SchedulePanel meetings={meetings} onChange={setMeetings} />
+
+      <AgentConsole onState={onAgentState} onSchedule={setMeetings} />
 
       {selected && <AgentOverview sel={selected} onClose={() => setSelected(null)} />}
     </div>

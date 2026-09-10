@@ -66,7 +66,7 @@ const fsSource = `
     vec2 fragCoord = gl_FragCoord.xy;
     vec2 uv = fragCoord.xy / iResolution.xy;
 
-    // Voice intensity — clearly reactive when Apex speaks (amplitude + brightness + flow)
+    // Voice intensity — clearly reactive when Mey speaks (amplitude + brightness + flow)
     float voiceBoost = iVoiceIntensity;
     vec4 lineColorBase = mix(vec4(0.06, 0.45, 0.55, 1.0), vec4(0.62, 0.40, 0.06, 1.0), iGold);
     vec4 lineColorCool = mix(vec4(0.03, 0.28, 0.38, 1.0), vec4(0.42, 0.27, 0.04, 1.0), iGold);
@@ -216,7 +216,7 @@ export default function ShaderBackground({ opacity = 0.18, voiceActive = false, 
     let calmFrame = 0
 
     const render = () => {
-      // [perf] Tier B Step 1: render the golden waves at HALF rate while a reply streams / Apex speaks —
+      // [perf] Tier B Step 1: render the golden waves at HALF rate while a reply streams / Mey speaks —
       // frees the main thread for audio delivery. Flow is time-based (dt), so the wave SPEED is unchanged,
       // just fewer draws (a slightly choppier shimmer for ~2s). Idle = full rate, look unchanged.
       if (isRenderCalm() && (++calmFrame & 1)) { rafId = requestAnimationFrame(render); return }
@@ -228,7 +228,7 @@ export default function ShaderBackground({ opacity = 0.18, voiceActive = false, 
       const rate = voiceTargetRef.current > voiceRef.current ? dt * 2.0 : dt * 0.67
       voiceRef.current += (voiceTargetRef.current - voiceRef.current) * Math.min(rate * 4, 1)
 
-      // Flow advances faster while Apex speaks (up to ~3.4x), smoothly — no phase jump
+      // Flow advances faster while Mey speaks (up to ~3.4x), smoothly — no phase jump
       flowRef.current += dt * (1.0 + voiceRef.current * 2.4)
       goldRef.current += (goldTargetRef.current - goldRef.current) * Math.min(dt * 3, 1)  // cyan↔gold cross-fade
       gl.clearColor(0, 0, 0, 1)

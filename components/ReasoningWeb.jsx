@@ -2,21 +2,21 @@
 
 import { useEffect, useRef } from 'react'
 
-// Apex's reasoning web — the lean-orchestrator brain. Two modes:
+// Mey's reasoning web — the lean-orchestrator brain. Two modes:
 //   mode="full"  → the whole circuit-brain constellation (front / overview). Orbit rings + PCB
 //                  traces + neuron texture + the asymmetric roster, weighted by responsibility
 //                  (Chief of staff biggest + closest). On a reasoning turn the consulted nodes
 //                  light and cyan particles flow the path.
-//   mode="mini"  → chat mode. The core stays calm; only the 1–3 helpers Apex actually consulted
+//   mode="mini"  → chat mode. The core stays calm; only the 1–3 helpers Mey actually consulted
 //                  BLOOM out for a beat (pulse + label) then retract. Keeps the corner uncluttered.
-// `coreless` hides Apex's own core (used in front mode, layered over the 3D particle orb, so there
+// `coreless` hides Mey's own core (used in front mode, layered over the 3D particle orb, so there
 // is one bright centre, not two). Driven by the backend `trace` WS event. See APEX_ARCHITECTURE.md.
 //
 // Aesthetic (ref: navy AI-brain): thin lines, small cyan particles, structured-chaos glow.
 // Pure SVG + rAF, built imperatively; decorative (pointer-events none).
 
 // Site adaptation: `roster`, `anchor` and `viewBox` are optional overrides so a
-// caller can re-arrange the constellation (the pitch deck parks Apex to one side
+// caller can re-arrange the constellation (the pitch deck parks Mey to one side
 // and needs the roster hanging below the core, not wrapped around it). Omit them
 // and this behaves exactly as the app copy does.
 const NS = 'http://www.w3.org/2000/svg'
@@ -105,7 +105,7 @@ export default function ReasoningWeb({ state = 'standby', trace = null, mode = '
       pulsesG.append(el); live.push({ el, born: performance.now(), spoke, L: spoke.getTotalLength(), faint })
     }
 
-    // ── Apex core (unless layered over the 3D orb) ──
+    // ── Mey core (unless layered over the 3D orb) ──
     let halo, ring, gold, hot
     if (!coreless) {
       halo = mk('circle', { cx: AX, cy: AY, r: 30, fill: '#0bd0ff', opacity: 0.14, filter: 'url(#rw-soft)' })
@@ -113,7 +113,7 @@ export default function ReasoningWeb({ state = 'standby', trace = null, mode = '
       gold = mk('circle', { cx: AX, cy: AY, r: 11, fill: '#ffcf6b', filter: 'url(#rw-glow)' })
       hot = mk('circle', { cx: AX, cy: AY, r: 4, fill: '#ffffff', filter: 'url(#rw-glow)' })
       const lab = mk('text', { x: AX, y: AY + 34, 'text-anchor': 'middle', 'font-size': 12, 'font-family': 'inherit', fill: '#ffcf6b' })
-      lab.textContent = 'Apex'
+      lab.textContent = 'Mey'
       coreG.append(halo, ring, gold, hot, lab)
     }
 
@@ -206,7 +206,7 @@ export default function ReasoningWeb({ state = 'standby', trace = null, mode = '
           }, k * 210)
         })
         // connections between co-active agents — a transient link so multiple agents working the same turn
-        // READ as collaborating (not just Apex→each). Auto-removed after ~2.4s.
+        // READ as collaborating (not just Mey→each). Auto-removed after ~2.4s.
         const co = ids.map((id) => map[id]).filter(Boolean)
         for (let i = 0; i < co.length - 1; i++) {
           const a = co[i], b = co[i + 1]
@@ -263,8 +263,8 @@ export default function ReasoningWeb({ state = 'standby', trace = null, mode = '
       const dt = Math.min(0.05, (t - last) / 1000); last = t
       const lvl = LEVEL[stateRef.current] ?? 0.4
       const awake = stateRef.current !== 'standby'
-      // One phase clock that runs FASTER when Apex is awake — drives all the glow/pulsing, so the
-      // whole web visibly quickens the moment Apex wakes (no period jump: we accumulate phase).
+      // One phase clock that runs FASTER when Mey is awake — drives all the glow/pulsing, so the
+      // whole web visibly quickens the moment Mey wakes (no period jump: we accumulate phase).
       phase += dt * (0.85 + 1.9 * lvl)
       const k = (Math.sin(phase) + 1) / 2
       if (!coreless) {
@@ -281,7 +281,7 @@ export default function ReasoningWeb({ state = 'standby', trace = null, mode = '
         n.halo.setAttribute('r', n.haloR + 2 * kk)
       }
       // Ambient "thinking" — a constant gentle drift of faint motes from the core out to ALL parts.
-      // Denser + faster when Apex is awake (two at a time), so the whole web feels alive.
+      // Denser + faster when Mey is awake (two at a time), so the whole web feels alive.
       if (mode === 'full' && t > nextAmbient && live.length < (awake ? 18 : 8)) {
         const sp = apiRef.current.allSpokes
         if (sp.length) { spawn(sp[(Math.random() * sp.length) | 0], true); if (awake && Math.random() < 0.6) spawn(sp[(Math.random() * sp.length) | 0], true) }
@@ -313,7 +313,7 @@ export default function ReasoningWeb({ state = 'standby', trace = null, mode = '
       <svg ref={svgRef} width="100%" height="100%" viewBox={viewBox || "0 0 680 480"}
            preserveAspectRatio="xMidYMid meet"
            style={{ fontFamily: 'inherit', pointerEvents: 'none', overflow: 'visible' }}
-           role="img" aria-label="Apex reasoning web" />
+           role="img" aria-label="Mey reasoning web" />
     </>
   )
 }

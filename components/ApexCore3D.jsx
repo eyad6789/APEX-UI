@@ -422,19 +422,22 @@ function Core({ state, variant, corner = false, bigDock = false }) {
   )
 }
 
-export default function ApexCore3D({ state = 'idle', variant = 'geodesic', onClick, corner = false, bigDock = false, contained = false }) {
+export default function ApexCore3D({ state = 'idle', variant = 'geodesic', onClick, corner = false, bigDock = false, contained = false, chrome = true }) {
   const st = normalizeState(state)
   const label = st === 'processing' ? 'Processing' : st === 'listening' ? 'Listening' : st === 'speaking' ? 'Speaking' : 'Standby'
   const [bgIdx, setBgIdx] = useState(2) // Grid default
   const isParticles = variant === 'particles' // cyan-only, transparent, status moves to OrbStatusBar
+  // chrome={false} borrows a 3D variant for the world: keep the geometry, drop the
+  // standalone backdrop / BG switcher / status cluster it draws when it owns the screen.
+  const showChrome = !isParticles && chrome
 
   return (
     <div onClick={onClick} style={{
       position: contained ? 'absolute' : 'fixed', inset: 0, zIndex: 15, pointerEvents: onClick ? 'auto' : 'none',
-      background: isParticles ? 'transparent' : BG_VARIANTS[bgIdx].css,
+      background: showChrome ? BG_VARIANTS[bgIdx].css : 'transparent',
       // canvas is ALWAYS full-screen / untransformed â€” the ball moves to the ring in 3D instead
     }}>
-      {!isParticles && (
+      {showChrome && (
         <button
           onClick={(e) => { e.stopPropagation(); setBgIdx(i => (i + 1) % BG_VARIANTS.length) }}
           style={{
@@ -482,7 +485,7 @@ export default function ApexCore3D({ state = 'idle', variant = 'geodesic', onCli
       </Canvas>
       </OrbBoundary>
 
-      {!isParticles && (
+      {showChrome && (
         <div style={{
           position: 'absolute', left: 0, right: 0, top: '79%',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, pointerEvents: 'none',
