@@ -8,7 +8,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tts:setup": "bash scripts/setup-tts.sh",
+    "tts:setup:kokoro": "bash scripts/setup-kokoro.sh",
+    "test": "node --import ./test/register.mjs --test test/*.test.ts"
   },
   "dependencies": {
     "next": "15.3.8",
