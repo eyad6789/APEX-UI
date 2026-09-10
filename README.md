@@ -24,6 +24,79 @@ npm run dev
 
 Then `npm run build` for a production build, or deploy to Vercel in one click.
 
+## Talk to it (the live agent)
+
+This fork adds a working agent behind the orb: type, press the mic, or switch on
+**HANDS-FREE** and just say *"Hi Apex, …"* — the message goes to a Gemini model and the
+reply is spoken in an ElevenLabs voice. The orb follows along (listening → thinking → speaking).
+Hands-free keeps Safari's speech recognition open while Apex is idle and fires on the name
+(matched loosely — "AFX", "Eric", "a pex" all count, because that is what the recogniser
+hears); saying only the name gets a "Yes, sir?".
+
+```bash
+cp .env.local.example .env.local      # then paste your keys in
+node scripts/find-jarvis-voice.mjs     # finds "Jarvis" in the ElevenLabs Voice Library,
+                                       # adds it to your account, prints ELEVENLABS_VOICE_ID
+npm run dev
+```
+
+| Var | What |
+|-----|------|
+| `GEMINI_API_KEY` | the brain — [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| `APEX_MODEL` | optional, default `gemini-3.7-flash` |
+| `ELEVENLABS_API_KEY` | the voice — [elevenlabs.io](https://elevenlabs.io/app/settings/api-keys) |
+| `ELEVENLABS_VOICE_ID` | the Jarvis voice from your library; falls back to the stock "Daniel" voice |
+| `ELEVENLABS_MODEL` | optional, default `eleven_multilingual_v2` (Arabic works) |
+
+No ElevenLabs key → the browser's own speech synthesis reads the reply instead.
+Pieces: `components/AgentConsole.tsx` (the bar), `app/api/chat` (Gemini), `app/api/tts` (ElevenLabs).
+
+## The voices and the schedule
+
+**Everything falls back.** Each layer tries the good option first and degrades
+rather than failing:
+
+| Layer | First choice | Falls back to |
+|-------|--------------|---------------|
+| Brain (`lib/brain`) | Gemini | `qwen2.5:7b-instruct` on local Ollama |
+| Voice (`lib/tts`) | ElevenLabs | Piper (local) → Kokoro → macOS `say` → the browser voice |
+
+Both cascade at *runtime*, not just on missing keys: a 401, an exhausted quota or
+a dropped connection moves to the next option mid-request.
+
+```bash
+npm run tts:setup           # Piper + the en_GB "Alan" voice (~60MB, MIT, offline)
+npm run tts:setup:kokoro    # optional richer voice (pulls PyTorch, ~2GB)
+ollama pull qwen2.5:7b-instruct   # the offline brain
+```
+
+Pin one for testing with `APEX_TTS=piper` or `APEX_BRAIN=local` in `.env.local`.
+
+### Hands-free
+
+Hands-free is **on by default** and arms on the first click or keypress anywhere
+on the page — Safari will not open a microphone or play audio until the page has
+been touched once. After that, just say *"Apex, …"*. Switch it off with the
+HANDS-FREE button and the choice is remembered.
+
+> Audio note: Safari refuses `play()` on an element whose first play did not
+> happen inside a gesture, and it does so *silently* — the promise never settles.
+> That is why the console keeps one `<audio>` element, primes it with 50ms of
+> silence on your first interaction, and reuses it for every reply.
+
+### Schedule
+
+Apex keeps a calendar in `data/schedule.json` and can change it by voice:
+
+> *"Add a meeting at 3:33 pm with Ammar."*
+> *"Book a call with Dr. Zay tomorrow at 10 am."*
+> *"What's on my schedule?"*
+
+The model emits a small `<apex:schedule>{…}</apex:schedule>` command that the
+server executes (`lib/schedule/`), so what Apex says is the real outcome — he
+cannot claim to have booked something that did not save. `GET/POST/DELETE
+/api/schedule` is the same calendar over HTTP, and the panel on the left shows it.
+
 ## What's inside
 
 | Piece | What it does |

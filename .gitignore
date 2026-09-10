@@ -7,3 +7,15 @@ build/
 next-env.d.ts
 .DS_Store
 .vercel
+
+# local text-to-speech (installed by npm run tts:setup)
+.venv-tts/
+voices/*.onnx
+voices/*.onnx.json
+
+# Apex writes your meetings here - personal, not shipped
+data/schedule.json
+
+# Mey knows who you are - personal, not shipped
+data/profile.md
+data/workspace-index.json
