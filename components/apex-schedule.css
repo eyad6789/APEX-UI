@@ -1,0 +1,80 @@
+/* The schedule rail, sitting quietly to one side of the figure. */
+
+.apex-schedule {
+  position: absolute;
+  top: clamp(72px, 12vh, 132px);
+  left: clamp(16px, 3vw, 40px);
+  z-index: 30;
+  width: min(272px, 34vw);
+  padding: 14px 16px 15px;
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  border-radius: 14px;
+  background: rgba(4, 8, 15, 0.62);
+  backdrop-filter: blur(12px);
+  color: #f0ede8;
+}
+
+.apex-schedule__title {
+  margin: 0 0 11px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(56, 189, 248, 0.85);
+}
+
+.apex-schedule__empty { margin: 0; font-size: 0.76rem; line-height: 1.6; color: rgba(240, 237, 232, 0.5); }
+.apex-schedule__empty em { color: rgba(240, 237, 232, 0.72); font-style: normal; }
+
+.apex-schedule__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+
+.apex-schedule__item {
+  display: grid;
+  grid-template-columns: 62px 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+  padding-bottom: 9px;
+  border-bottom: 1px solid rgba(240, 237, 232, 0.07);
+}
+.apex-schedule__item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.apex-schedule__when { display: flex; flex-direction: column; gap: 1px; }
+.apex-schedule__day {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(240, 237, 232, 0.42);
+}
+.apex-schedule__time {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78rem; color: #fb923c; white-space: nowrap;
+}
+
+.apex-schedule__what { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.apex-schedule__name { font-size: 0.81rem; line-height: 1.35; }
+.apex-schedule__with { font-size: 0.68rem; color: rgba(240, 237, 232, 0.5); }
+
+.apex-schedule__remove {
+  border: none; background: transparent; cursor: pointer; padding: 0 2px;
+  font-size: 1rem; line-height: 1; color: rgba(240, 237, 232, 0.28);
+  transition: color 0.2s ease;
+}
+.apex-schedule__remove:hover:not(:disabled) { color: #ff8a8a; }
+.apex-schedule__remove:disabled { cursor: default; }
+
+@media (max-width: 720px) {
+  .apex-schedule {
+    top: auto; bottom: 96px; left: 50%; transform: translateX(-50%);
+    width: min(94vw, 420px); max-height: 132px; overflow-y: auto;
+  }
+}
+
+/* The undated tail. Quieter than the dated list above it - these have no when. */
+.apex-schedule__group {
+  margin: 14px 0 9px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240, 237, 232, 0.38);
+}
