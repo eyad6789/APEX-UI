@@ -139,5 +139,7 @@ If you build on this, please use your own product name and branding.
 
 ---
 
-Made by [Ruben Mouradian — Reznikov Engineering](https://reznikov-engineering.com).
+Made by [Eyad Qasim](https://github.com/eyad6789) — the voice agent, brain, tools and
+the May avatar — on top of the original APEX-UI orb interface by
+[Ruben Mouradian — Reznikov Engineering](https://reznikov-engineering.com).
 If you use it, a link back is appreciated (not required).
